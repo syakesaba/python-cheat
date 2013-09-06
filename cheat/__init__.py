@@ -8,6 +8,8 @@ import strace # cp python-ptrace-0.6.5/strace.py /usr/local/lib/python3.1/dist-p
 import distorm3 # http://code.google.com/p/distorm/downloads/
 from functools import wraps
 import os
+import struct
+from config import SystemInfo,ProgPath
 
 def pidof(pid):
     os.system("pidof %d" % pid)
@@ -56,7 +58,7 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
                 else:
                     self._target_process = None
         return ret
-    
+
     def switch_target(self, target_pid):
         self._target_process = self[self.target_pid]
 
@@ -69,8 +71,29 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
     def show_target(self):
         self._target_process.pid
 
+#searching
+#Format  C Type  Python type     Standard size   Notes
+#x   pad byte    no value         
+#c   char    string of length 1  1    
+#b   signed char     integer     1   (3)
+#B   unsigned char   integer     1   (3)
+#?   _Bool   bool    1   (1)
+#h   short   integer     2   (3)
+#H   unsigned short  integer     2   (3)
+#i   int     integer     4   (3)
+#I   unsigned int    integer     4   (3)
+#l   long    integer     4   (3)
+#L   unsigned long   integer     4   (3)
+#q   long long   integer     8   (2), (3)
+#Q   unsigned long long  integer     8   (2), (3)
+#f   float   float   4   (4)
+#d   double  float   8   (4)
+#s   char[]  string       
+#p   char[]  string       
+#P   void *  integer         (5), (3)
+
     def searchString(self, s):
-        matchings = set()
+        matchings = []
         try:
             self.target.getInstrPointer()
         except ProcessError:
@@ -78,19 +101,61 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
         except PtraceError:
             self.stop_target()
         for mappings in self.target.readMappings():
+            print "Searching " + str(mappings)
             for matching in mappings.search(s):
-                matchings.add(matching)
+                print "matched => " + str(hex(matching))
+                matchings.append(matching)
         self.start_target()
         return matchings
 
-if __name__ == "__main__":
-    d = CheatDebugger()
-    d.addProcess(int(raw_input("pid:")), False)
-    d.target.dumpRegs()
-    print d.start_target()
-    import time
-    time.sleep(1)
-    print d.stop_target()
-    d.target.dumpRegs()
-    time.sleep(1)
-    print d.start_target()
+    def searchBool(self, b):
+        return searchString(struct.pack(SystemInfo.endian+"?", b))
+
+    def searchShort(self, s):
+        return searchString(struct.pack(SystemInfo.endian+"h", s))
+
+    def searchShortUnsigned(self, s):
+        return searchString(struct.pack(SystemInfo.endian+"H", s))
+
+    def searchInt(self, i):
+        return searchString(struct.pack(SystemInfo.endian+"i", i))
+
+    def searchIntUnsigned(self, i):
+        return searchString(struct.pack(SystemInfo.endian+"I", i))
+
+    def searchLong(self, l):
+        return searchString(struct.pack(SystemInfo.endian+"l", l))
+
+    def searchLongUnsigned(self, l):
+        return searchString(struct.pack(SystemInfo.endian+"L", l))
+
+    def searchLongLong(self, ll):
+        return searchString(struct.pack(SystemInfo.endian+"q", ll))
+
+    def searchLongLongUnsigned(self, ll):
+        return searchString(struct.pack(SystemInfo.endian+"Q", ll))
+
+    def searchFloat(self, f):
+        return searchString(struct.pack(SystemInfo.endian+"f", f))
+
+    def searchDouble(self, d):
+        return searchString(struct.pack(SystemInfo.endian+"d", d))
+
+    def searchVoid(self, p):
+        return searchString(struct.pack(SystemInfo.endian+"P", p))
+
+#Dumping-Searching
+# less than, greater than, equal, diff
+    def dumpAllMemory(self):
+        pass
+    def diffMemory(self):
+        pass
+# or implement in different file?
+
+#Pythonic Searcing
+    def searchMatcher(self, bytes_per_read, function):
+        pass
+
+#Pointer Searching
+    def serachPointer(self):
+        pass

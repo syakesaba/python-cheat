@@ -12,6 +12,10 @@ import os
 from cheat import CheatDebugger
 
 if __name__ == "__main__":
+    if os.getuid() != 0:
+        print "Run as root"
+        print "sudo",__file__,"<pid> [<pid> ...]"
+        exit(-1)
     if len(sys.argv) < 2:
         print __file__," <pid> [<pid> ...]"
         exit(-1)
