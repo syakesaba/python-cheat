@@ -47,7 +47,7 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
         if ret is not None and self._target_process is None:
             self._target_process = ret
         return ret
-    
+
     def deleteProcess(self, process=None, pid=None):
         ret = ptrace.debugger.PtraceDebugger.deleteProcess(self, process, pid)
         if self._target_process is not None:
@@ -71,29 +71,10 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
     def show_target(self):
         self._target_process.pid
 
-#searching
-#Format  C Type  Python type     Standard size   Notes
-#x   pad byte    no value         
-#c   char    string of length 1  1    
-#b   signed char     integer     1   (3)
-#B   unsigned char   integer     1   (3)
-#?   _Bool   bool    1   (1)
-#h   short   integer     2   (3)
-#H   unsigned short  integer     2   (3)
-#i   int     integer     4   (3)
-#I   unsigned int    integer     4   (3)
-#l   long    integer     4   (3)
-#L   unsigned long   integer     4   (3)
-#q   long long   integer     8   (2), (3)
-#Q   unsigned long long  integer     8   (2), (3)
-#f   float   float   4   (4)
-#d   double  float   8   (4)
-#s   char[]  string       
-#p   char[]  string       
-#P   void *  integer         (5), (3)
+#============Searching Memory
 
     def searchString(self, s):
-        matchings = []
+        matchings = set()
         try:
             self.target.getInstrPointer()
         except ProcessError:
@@ -104,45 +85,45 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
             print "Searching " + str(mappings)
             for matching in mappings.search(s):
                 print "matched => " + str(hex(matching))
-                matchings.append(matching)
+                matchings.add(matching)
         self.start_target()
         return matchings
 
     def searchBool(self, b):
-        return searchString(struct.pack(SystemInfo.endian+"?", b))
+        return self.searchString(struct.pack(SystemInfo.endian+"?", b))
 
     def searchShort(self, s):
-        return searchString(struct.pack(SystemInfo.endian+"h", s))
+        return self.searchString(struct.pack(SystemInfo.endian+"h", s))
 
     def searchShortUnsigned(self, s):
-        return searchString(struct.pack(SystemInfo.endian+"H", s))
+        return self.searchString(struct.pack(SystemInfo.endian+"H", s))
 
     def searchInt(self, i):
-        return searchString(struct.pack(SystemInfo.endian+"i", i))
+        return self.searchString(struct.pack(SystemInfo.endian+"i", i))
 
     def searchIntUnsigned(self, i):
-        return searchString(struct.pack(SystemInfo.endian+"I", i))
+        return self.searchString(struct.pack(SystemInfo.endian+"I", i))
 
     def searchLong(self, l):
-        return searchString(struct.pack(SystemInfo.endian+"l", l))
+        return self.searchString(struct.pack(SystemInfo.endian+"l", l))
 
     def searchLongUnsigned(self, l):
-        return searchString(struct.pack(SystemInfo.endian+"L", l))
+        return self.searchString(struct.pack(SystemInfo.endian+"L", l))
 
     def searchLongLong(self, ll):
-        return searchString(struct.pack(SystemInfo.endian+"q", ll))
+        return self.searchString(struct.pack(SystemInfo.endian+"q", ll))
 
     def searchLongLongUnsigned(self, ll):
-        return searchString(struct.pack(SystemInfo.endian+"Q", ll))
+        return self.searchString(struct.pack(SystemInfo.endian+"Q", ll))
 
     def searchFloat(self, f):
-        return searchString(struct.pack(SystemInfo.endian+"f", f))
+        return self.searchString(struct.pack(SystemInfo.endian+"f", f))
 
     def searchDouble(self, d):
-        return searchString(struct.pack(SystemInfo.endian+"d", d))
+        return self.searchString(struct.pack(SystemInfo.endian+"d", d))
 
     def searchVoid(self, p):
-        return searchString(struct.pack(SystemInfo.endian+"P", p))
+        return self.searchString(struct.pack(SystemInfo.endian+"P", p))
 
 #Dumping-Searching
 # less than, greater than, equal, diff
@@ -159,3 +140,101 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
 #Pointer Searching
     def serachPointer(self):
         pass
+
+#============Reading Memory
+
+    def readBytes(self, addr, length):
+        try:
+            self.target.getInstrPointer()
+        except ProcessError:
+            self.stop_target()
+        except PtraceError:
+            self.stop_target()
+        ret = self.target.readBytes(addr,length)
+        self.start_target()
+        return ret
+
+    def readBool(self, addr):
+        return struct.unpack(SystemInfo.endian + "?",self.readBytes(addr,SystemInfo.sizeof.bool))
+
+    def readShort(self, addr):
+        return struct.unpack(SystemInfo.endian + "h",self.readBytes(addr,SystemInfo.sizeof.short))
+
+    def readShortUnsigned(self, addr):
+        return struct.unpack(SystemInfo.endian + "H",self.readBytes(addr,SystemInfo.sizeof.ushort))
+
+    def readInt(self, addr):
+        return struct.unpack(SystemInfo.endian + "i",self.readBytes(addr,SystemInfo.sizeof.int))
+
+    def readIntUnsigned(self, addr):
+        return struct.unpack(SystemInfo.endian + "I",self.readBytes(addr,SystemInfo.sizeof.uint))
+
+    def readLong(self, addr):
+        return struct.unpack(SystemInfo.endian + "l",self.readBytes(addr,SystemInfo.sizeof.long))
+
+    def readLongUnsigned(self, addr):
+        return struct.unpack(SystemInfo.endian + "L",self.readBytes(addr,SystemInfo.sizeof.ulong))
+
+    def readLongLong(self, addr):
+        return struct.unpack(SystemInfo.endian + "q",self.readBytes(addr,SystemInfo.sizeof.longlong))
+
+    def readLongLongUnsigned(self, addr):
+        return struct.unpack(SystemInfo.endian + "Q",self.readBytes(addr,SystemInfo.sizeof.ulonglong))
+
+    def readFloat(self, addr):
+        return struct.unpack(SystemInfo.endian + "f",self.readBytes(addr,SystemInfo.sizeof.float))
+
+    def readDouble(self, addr):
+        return struct.unpack(SystemInfo.endian + "d",self.readBytes(addr,SystemInfo.sizeof.double))
+
+    def readVoid(self, addr):
+        return struct.unpack(SystemInfo.endian + "P",self.readBytes(addr,SystemInfo.sizeof.void))
+
+#============Writing Memory
+
+    def writeBytes(self, addr, data):
+        try:
+            self.target.getInstrPointer()
+        except ProcessError:
+            self.stop_target()
+        except PtraceError:
+            self.stop_target()
+        ret = self.target.writeBytes(addr,data)
+        self.start_target()
+        return ret
+
+    def writeBool(self, addr, b):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"?", b))
+
+    def writeShort(self, addr, s):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"h", s))
+
+    def writeShortUnsigned(self, addr, s):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"H", s))
+
+    def writeInt(self, addr, i):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"i", i))
+
+    def writeIntUnsigned(self, addr, i):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"I", i))
+
+    def writeLong(self, addr, l):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"l", l))
+
+    def writeLongUnsigned(self, addr, l):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"L", l))
+
+    def writeLongLong(self, addr, ll):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"q", ll))
+
+    def writeLongLongUnsigned(self, addr, ll):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"Q", ll))
+
+    def writeFloat(self, addr, f):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"f", f))
+
+    def writeDouble(self, addr, d):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"d", d))
+
+    def writeVoid(self, addr, p):
+        return self.writeBytes(addr, struct.pack(SystemInfo.endian+"P", p))

@@ -20,13 +20,3 @@ class CheatMemory(object):
         for mp in self.maps:
             if mp.pathname == pathname:
                 return mp
-
-if __name__ == "__main__":
-    from __init__ import CheaterDebugger
-    pid = int(raw_input("input pid: "))
-    d = CheaterDebugger()
-    p = d.addProcess(pid, False, None)
-    p.memory = CheatMemory(p)
-    p.cont()
-    print p.memory.heap
-    print p.memory.stack
