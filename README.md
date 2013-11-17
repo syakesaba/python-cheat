@@ -1,13 +1,18 @@
 Python-Cheat
 ===============
-Linux (not unix,BSD,solaris) cheating tool using python-ptrace. 
-not yet work.sorry.
+Linux (not unix,BSD,solaris) cheating tool using python-ptrace.   
+Only work searching, reading, writing now.
 
 Depends
 ===============
 * [python-ptrace](https://pypi.python.org/pypi/python-ptrace "Ptrace library for python") - The best debugging tool.
 * [distorm3](http://code.google.com/p/distorm/ "Distorm3 - DisAssembler") - The best disassembler for linux.
 * strace.py - The best "Signaling" tool.
+
+Install
+===============
+See my small video.  
+YT(path = "GSoljjCJJug", copy2clip = TRUE, width = 640, height = 360, print = FALSE)
 
 Works on
 ===============
