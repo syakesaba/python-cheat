@@ -11,8 +11,7 @@ Depends
 
 Install
 ===============
-See my small video.  
-YT(path = "GSoljjCJJug", copy2clip = TRUE, width = 640, height = 360, print = FALSE)
+See my small [video](https://www.youtube.com/watch?v=GSoljjCJJug "How to Install Python-Ptrace")
 
 Works on
 ===============
