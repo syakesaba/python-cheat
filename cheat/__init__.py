@@ -81,9 +81,12 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
             self.stop_target()
         for mappings in self.target.readMappings():
             print "Searching " + str(mappings)
-            for matching in mappings.search(s):
-                print "matched => " + str(hex(matching))
-                matchings.add(matching)
+            try:
+                for matching in mappings.search(s):
+                    print "matched => " + str(hex(matching))
+                    matchings.add(matching)
+            except Exception as e:
+                print "Unknown Error: ",e
         self.start_target()
         return matchings
 
