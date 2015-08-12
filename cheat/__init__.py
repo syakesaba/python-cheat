@@ -4,8 +4,6 @@
 #nitePRっぽくしたい。
 
 import ptrace.debugger
-import strace # cp python-ptrace-0.6.5/strace.py /usr/local/lib/python3.1/dist-packages/
-import distorm3 # http://code.google.com/p/distorm/downloads/
 from functools import wraps
 import os
 import struct
