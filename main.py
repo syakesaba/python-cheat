@@ -37,7 +37,6 @@ if __name__ == "__main__":
     except:
         pass
     from code import interact
-    sys.ps1 ="\x1B[1m\x1B[31m>\x1B[33m>\x1B[32m>\x1B[0m "
     #http://pueblo.sourceforge.net/doc/manual/ansi_color_codes.html
     usage=\
 """
