@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-# see http://www21.atpages.jp/sugeryouyeah/python/index.html
-
-import ptrace.debugger # https://pypi.python.org/packages/source/p/python-ptrace/python-ptrace-0.6.5.tar.gz
-import strace # cp python-ptrace-0.6.5/strace.py /usr/local/lib/python3.1/dist-packages/
-import distorm3 # http://code.google.com/p/distorm/downloads/
+import ptrace
 import sys
 import os
 
@@ -25,18 +21,19 @@ if __name__ == "__main__":
             pid = int(pid)
             print "Adding %d" % pid
             cheater.addProcess(pid,False)
-        except:
+        except Exception as e:
             print "Invalid pid %s" % pid
+            print e
             exit(-1)
     try:
         import rlcompleter,atexit
-        pyhistfile=os.getenv("HOME")+"/.pyhistory"
+        #pyhistfile=os.getenv("HOME")+"/.pyhistory"
         rlcompleter.readline.parse_and_bind("tab: complete")
-        rlcompleter.readline.read_history_file(pyhistfile)
+        #rlcompleter.readline.read_history_file(pyhistfile)
         rlcompleter.readline.set_history_length(100)
-        atexit.register(rlcompleter.readline.write_history_file, pyhistfile)
-        print "TAB: Complete;Saving History in '%s' " % pyhistfile
-        del os,pyhistfile
+        #atexit.register(rlcompleter.readline.write_history_file, pyhistfile)
+        #print "TAB: Complete;Saving History in '%s' " % pyhistfile
+        #del os,pyhistfile
     except:
         pass
     from code import interact
