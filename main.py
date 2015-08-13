@@ -27,13 +27,16 @@ if __name__ == "__main__":
             exit(-1)
     try:
         import rlcompleter,atexit
-        #pyhistfile=os.getenv("HOME")+"/.pyhistory"
-        rlcompleter.readline.parse_and_bind("tab: complete")
-        #rlcompleter.readline.read_history_file(pyhistfile)
+        home = os.path.expanduser('~')
+        pyhistfile = os.path.join(home, '.python-cheat')
+        if not os.path.exists(pyhistfile):
+            f = open(pyhistfile,"w")
+            f.write("")
+            f.close()
+        rlcompleter.readline.parse_and_bind("tab: complete") #TODO: multi arch
+        rlcompleter.readline.read_history_file(pyhistfile)
         rlcompleter.readline.set_history_length(100)
-        #atexit.register(rlcompleter.readline.write_history_file, pyhistfile)
-        #print "TAB: Complete;Saving History in '%s' " % pyhistfile
-        #del os,pyhistfile
+        atexit.register(rlcompleter.readline.write_history_file, pyhistfile)
     except:
         pass
     from code import interact
@@ -46,5 +49,9 @@ cheater.dumpRegs()
 cheater.start_target()
 cheater.stop_target()
 cheater.sqitch_target()
-"""
+
+Enjoy
+
+====="""
+    sys.ps1="(" + str(cheater.target.pid) + ") > "
     interact(banner=usage,local=locals())

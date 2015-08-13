@@ -5,12 +5,9 @@
 
 import ptrace.debugger
 from functools import wraps
-import os
 import struct
+import signal
 from config import SystemInfo,ProgPath
-
-def pidof(pid):
-    os.system("pidof %d" % pid)
 
 from cheatMemory import CheatMemory
 from cheatRegister import CheatRegister
@@ -42,43 +39,45 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
 
     def addProcess(self, pid, is_attached, parent=None):
         ret = ptrace.debugger.PtraceDebugger.addProcess(self, pid, is_attached, parent)
-        if ret is not None and self._target_process is None:
-            self._target_process = ret
+        if ret is not None and self.target is None:
+            self.target = ret
+            self.start_target()
         return ret
 
     def deleteProcess(self, process=None, pid=None):
         ret = ptrace.debugger.PtraceDebugger.deleteProcess(self, process, pid)
-        if self._target_process is not None:
-            if process is not None and self._target_process.pid == process.pid or\
-                pid is not None and self._target_process.pid == pid:
+        if self.target is not None:
+            if process is not None and self.target.pid == process.pid or\
+                pid is not None and self.target.pid == pid:
                 if self.list:
-                    self._target_process = self.list[0]
+                    self.target = self.list[0]
                 else:
-                    self._target_process = None
+                    self.target = None
         return ret
 
     def switch_target(self, target_pid):
-        self._target_process = self[self.target_pid]
+        self.target = self[self.target_pid]
 
     def start_target(self):
-        self._target_process.cont()
+        return self.target.cont()
+        #return self.target.kill(signal.SIGCONT)
 
     def stop_target(self):
-        self._target_process.kill(19)
+        return self.target.kill(signal.SIGSTOP)
 
     def show_target(self):
-        self._target_process.pid
+        print self.target
 
 #============Searching Memory
 
     def searchString(self, s):
         matchings = set()
-        try:
-            self.target.getInstrPointer()
-        except ProcessError:
-            self.stop_target()
-        except PtraceError:
-            self.stop_target()
+#        try:
+#            self.target.getInstrPointer()
+#        except ProcessError:
+#            self.stop_target()
+#        except PtraceError:
+#            self.stop_target()
         for mappings in self.target.readMappings():
             print "Searching " + str(mappings)
             try:
@@ -87,7 +86,7 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
                     matchings.add(matching)
             except Exception as e:
                 print "Unknown Error: ",e
-        self.start_target()
+        #self.start_target()
         return matchings
 
     def searchBool(self, b):
@@ -145,14 +144,9 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
 #============Reading Memory
 
     def readBytes(self, addr, length):
-        try:
-            self.target.getInstrPointer()
-        except ProcessError:
-            self.stop_target()
-        except PtraceError:
-            self.stop_target()
+        if not self.target.is_attached:
+            self.addProcess(self.target.pid, False)
         ret = self.target.readBytes(addr,length)
-        self.start_target()
         return ret
 
     def readBool(self, addr):
@@ -194,14 +188,10 @@ class CheatDebugger(ptrace.debugger.PtraceDebugger):
 #============Writing Memory
 
     def writeBytes(self, addr, data):
-        try:
-            self.target.getInstrPointer()
-        except ProcessError:
-            self.stop_target()
-        except PtraceError:
+        if not self.target.is_stopped:
             self.stop_target()
         ret = self.target.writeBytes(addr,data)
-        self.start_target()
+        #iself.start_target()
         return ret
 
     def writeBool(self, addr, b):
