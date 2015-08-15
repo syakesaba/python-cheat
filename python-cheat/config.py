@@ -4,16 +4,19 @@
 import sys
 import struct
 
-class ConfClass(object):
+
+class Config(object):
     """
     The ConfigClass from scapy!
     """
     def configure(self, cnf):
         self.__dict__ = cnf.__dict__.copy()
+
     def __repr__(self):
         return str(self)
+
     def __str__(self):
-        s=""
+        s = ""
         keys = self.__class__.__dict__.copy()
         keys.update(self.__dict__)
         keys = keys.keys()
@@ -22,13 +25,14 @@ class ConfClass(object):
             if i[0] != "_":
                 r = repr(getattr(self, i))
                 r = " ".join(r.split())
-                wlen = 76-max(len(i),10)
+                wlen = 76 - max(len(i), 10)
                 if len(r) > wlen:
-                    r = r[:wlen-3]+"..."
+                    r = r[:wlen-3] + "..."
                 s += "%-10s = %s\n" % (i, r)
         return s[:-1]
 
-class Sizeof(ConfClass):
+
+class Sizeof(Config):
     bool = struct.calcsize("b")
     short = struct.calcsize("h")
     ushort = struct.calcsize("H")
@@ -43,7 +47,7 @@ class Sizeof(ConfClass):
     void = struct.calcsize("P")
 
 
-class ProgPath(ConfClass):
+class ProgramPath(Config):
     dot = "dot"
     display = "display"
     hexer = "hexer"
@@ -51,7 +55,8 @@ class ProgPath(ConfClass):
     hexdump = "hexdmp"
     od = "od"
 
-class SystemInfo(ConfClass):
+
+class SystemInfo(Config):
     if sys.byteorder == "little":
         endian = "<"
     else:
