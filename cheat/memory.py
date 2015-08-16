@@ -19,6 +19,10 @@ class Memory(object):
     def stack(self):
         return self._findMap("[stack]")
 
+    @property
+    def vsyscall(self):
+        return self._findMap("[vsyscall]")
+
     def _findMap(self, pathname):
         for mp in self.maps:
             if mp.pathname == pathname:
