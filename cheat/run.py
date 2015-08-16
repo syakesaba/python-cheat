@@ -34,12 +34,20 @@ if __name__ == '__main__':
         if not os.path.exists(pyhistfile):
             with open(pyhistfile, "w") as fp:
                 fp.write("")
-
-        rlcompleter.readline.parse_and_bind("tab: complete")  # TODO: multi arch
-        rlcompleter.readline.read_history_file(pyhistfile)
+        if "libedit" in rlcompleter.readline.__doc__:
+            #BSD with libedit
+            rlcompleter.readline.parse_and_bind("bind -e")
+            rlcompleter.readline.parse_and_bind("bind '\t' rl_complete")
+        else:
+            rlcompleter.readline.parse_and_bind("tab: complete")
+        try:
+            rlcompleter.readline.read_history_file(pyhistfile)
+        except Exception as e:
+            #First creation of history file.
+            pass
         rlcompleter.readline.set_history_length(100)
         atexit.register(rlcompleter.readline.write_history_file, pyhistfile)
-    except:
+    except ImportError as e:
         pass
 
     from code import interact
