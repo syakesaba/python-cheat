@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-class CheatMemory(object):
+class Memory(object):
     def __init__(self, debugger):
         self.debugger = debugger
         self._mapping = None

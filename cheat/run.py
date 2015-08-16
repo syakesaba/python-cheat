@@ -2,7 +2,7 @@
 import os
 import sys
 
-from .debugger import Debugger
+from debugger import Debugger
 
 if __name__ == '__main__':
     if os.getuid() != 0:

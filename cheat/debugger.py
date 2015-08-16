@@ -5,8 +5,8 @@ import struct
 import signal
 
 from config import SystemInfo, ProgramPath
-from Memory import CheatMemory
-from Register import CheatRegister
+from memory import Memory
+from register import Register
 from functools import wraps
 from ptrace.debugger.process_error import ProcessError, PtraceError
 

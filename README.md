@@ -18,5 +18,6 @@ apt-get install gcc python-dev
 pip install python-ptrace
 
 git clone https://github.com/syakesaba/python-cheat.git
-sudo python -m python-cheat.run <pid>
+cd python-cheat
+sudo python -m cheat.run <pid>
 ```

@@ -2,7 +2,7 @@
 from ptrace.debugger.process_error import ProcessError
 
 
-class CheatRegister(object):
+class Register(object):
     def __init__(self, debugger):
         self.debugger = debugger
 
