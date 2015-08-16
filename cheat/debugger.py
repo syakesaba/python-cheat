@@ -33,6 +33,14 @@ class Debugger(ptrace.debugger.PtraceDebugger):
     def target(self, targette):
         self._target_process = targette
 
+    @property
+    def memory(self):
+        return Memory(self)
+
+    @memory.setter
+    def memory(self, mem):
+        raise Exception("Restore Memory is not impletemted")
+
     def addProcess(self, pid, is_attached, parent=None):
         ret = ptrace.debugger.PtraceDebugger.addProcess(self, pid, is_attached, parent)
         if ret is not None and self.target is None:

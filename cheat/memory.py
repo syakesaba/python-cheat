@@ -23,6 +23,10 @@ class Memory(object):
     def vsyscall(self):
         return self._findMap("[vsyscall]")
 
+    @property
+    def vdso(self):
+        return self._findMap("[vdso]")
+
     def _findMap(self, pathname):
         for mp in self.maps:
             if mp.pathname == pathname:
