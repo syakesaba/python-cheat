@@ -11,3 +11,6 @@ class Register(object):
             return self.debugger.target.getreg(item)
         except ProcessError as e:
             pass
+
+    def __setitem__(self, item, value):
+        raise Exception("not implemented")
