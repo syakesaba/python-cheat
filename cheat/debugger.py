@@ -74,7 +74,7 @@ class Debugger(ptrace.debugger.PtraceDebugger):
 
 # ============ Searching Memory
 
-    def searchString(self, s):
+    def searchBytes(self, s):
         matchings = set()
 #        try:
 #            self.target.getInstrPointer()
@@ -83,6 +83,9 @@ class Debugger(ptrace.debugger.PtraceDebugger):
 #        except PtraceError:
 #            self.stop_target()
         for mappings in self.target.readMappings():
+            if mappings.pathname in ["[vsyscall]","[vdso]"]:
+                #Fake-bin
+                continue
             print "Searching " + str(mappings)
             try:
                 for matching in mappings.search(s):
@@ -93,41 +96,45 @@ class Debugger(ptrace.debugger.PtraceDebugger):
         # self.start_target()
         return matchings
 
+    def searchString(self, s, encoding=None):
+        #TODO string to binary
+        return self.searchBytes(s)
+
     def searchBool(self, b):
-        return self.searchString(struct.pack(SystemInfo.endian + "?", b))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "?", b))
 
     def searchShort(self, s):
-        return self.searchString(struct.pack(SystemInfo.endian + "h", s))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "h", s))
 
     def searchShortUnsigned(self, s):
-        return self.searchString(struct.pack(SystemInfo.endian + "H", s))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "H", s))
 
     def searchInt(self, i):
-        return self.searchString(struct.pack(SystemInfo.endian + "i", i))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "i", i))
 
     def searchIntUnsigned(self, i):
-        return self.searchString(struct.pack(SystemInfo.endian + "I", i))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "I", i))
 
     def searchLong(self, l):
-        return self.searchString(struct.pack(SystemInfo.endian + "l", l))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "l", l))
 
     def searchLongUnsigned(self, l):
-        return self.searchString(struct.pack(SystemInfo.endian + "L", l))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "L", l))
 
     def searchLongLong(self, ll):
-        return self.searchString(struct.pack(SystemInfo.endian + "q", ll))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "q", ll))
 
     def searchLongLongUnsigned(self, ll):
-        return self.searchString(struct.pack(SystemInfo.endian + "Q", ll))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "Q", ll))
 
     def searchFloat(self, f):
-        return self.searchString(struct.pack(SystemInfo.endian + "f", f))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "f", f))
 
     def searchDouble(self, d):
-        return self.searchString(struct.pack(SystemInfo.endian + "d", d))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "d", d))
 
     def searchVoid(self, p):
-        return self.searchString(struct.pack(SystemInfo.endian + "P", p))
+        return self.searchBytes(struct.pack(SystemInfo.endian + "P", p))
 
 # Dumping-Searching
 # less than, greater than, equal, diff
@@ -152,6 +159,10 @@ class Debugger(ptrace.debugger.PtraceDebugger):
             self.addProcess(self.target.pid, False)
         ret = self.target.readBytes(addr, length)
         return ret
+
+    def readString(self, addr, length, encoding=None):
+        #TODO string to binary
+        return self.readBytes(addr, length)
 
     def readBool(self, addr):
         return struct.unpack(SystemInfo.endian + "?", self.readBytes(addr, SystemInfo.sizeof.bool))
@@ -197,6 +208,10 @@ class Debugger(ptrace.debugger.PtraceDebugger):
         ret = self.target.writeBytes(addr, data)
         # iself.start_target()
         return ret
+
+    def writeString(self, addr, length, encoding=None):
+        #TODO string to binary
+        return self.writeBytes(addr, length)
 
     def writeBool(self, addr, b):
         return self.writeBytes(addr, struct.pack(SystemInfo.endian + "?", b))
