@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import pickle
 
 class Memory(object):
     def __init__(self, debugger):
@@ -69,6 +69,64 @@ class SequentialMemoryDump(object):
 
     def __repr__(self):
         return "%s - %s %d bytes" % (hex(self.start_address), hex(self.end_address), len(self.dump_data))
+
+    def bitmap(self):
+        #BZdump
+        pass
+
+    def magic(self):
+        #file command magic bytes detection
+        pass
+
+class MemoryDump(dict):
+    def __init__(self,address_value=None):
+        if address_value:
+            dict.__init__(self, address_value)
+        else:
+            dict.__init__(self)
+
+    def __hash__(self):
+        return hash(pickle.dumps(self))
+
+    def __hash__keys(self):
+        return hash(pickle.dumps(self.keys()))
+
+    def has_same_addresses(self, other_memdump):
+        return self.__hash__keys() == other_memdump.__hash__keys()
+
+    def has_same_addresses_values(self, other_memdump):
+        return hash(self) == hash(other_memdump)
+
+    def __lt__(self, other_memdump):
+        assert(type(other_memdump) == type(self))
+        pass
+
+    def __le__(self, other_memdump):
+        assert(type(other_memdump) == type(self))
+        pass
+
+    def __eq__(self, other_memdump):
+        assert(type(other_memdump) == type(self))
+        assert(self.__hash__keys() == other_memdump.__hash__keys())
+        return {k:self[k] for k in self if self[k] == other_memdump[k]}
+
+    def __ne__(self, other_memdump):
+        assert(type(other_memdump) == type(self))
+        pass
+
+    def __gt__(self, other_memdump):
+        assert(type(other_memdump) == type(self))
+        pass
+
+    def __ge__(self, other_memdump):
+        assert(type(other_memdump) == type(self))
+        pass
+
+    def __str__(self):
+        return self.dump_data
+
+    def __repr__(self):
+        return ""
 
     def bitmap(self):
         #BZdump
