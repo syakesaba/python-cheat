@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+
 import pickle
+import os
 
 class Memory(object):
     def __init__(self, debugger):
@@ -99,34 +101,40 @@ class MemoryDump(dict):
 
     def __lt__(self, other_memdump):
         assert(type(other_memdump) == type(self))
-        pass
+        assert(self.__hash__keys() == other_memdump.__hash__keys())
+        return MemoryDump({k:self[k] for k in self if self[k] < other_memdump[k]})
 
     def __le__(self, other_memdump):
         assert(type(other_memdump) == type(self))
-        pass
+        assert(self.__hash__keys() == other_memdump.__hash__keys())
+        return MemoryDump({k:self[k] for k in self if self[k] <= other_memdump[k]})
 
     def __eq__(self, other_memdump):
         assert(type(other_memdump) == type(self))
         assert(self.__hash__keys() == other_memdump.__hash__keys())
-        return {k:self[k] for k in self if self[k] == other_memdump[k]}
+        return MemoryDump({k:self[k] for k in self if self[k] == other_memdump[k]})
 
     def __ne__(self, other_memdump):
         assert(type(other_memdump) == type(self))
-        pass
+        assert(self.__hash__keys() == other_memdump.__hash__keys())
+        return MemoryDump({k:self[k] for k in self if self[k] != other_memdump[k]})
 
     def __gt__(self, other_memdump):
         assert(type(other_memdump) == type(self))
-        pass
+        assert(self.__hash__keys() == other_memdump.__hash__keys())
+        return MemoryDump({k:self[k] for k in self if self[k] > other_memdump[k]})
 
     def __ge__(self, other_memdump):
         assert(type(other_memdump) == type(self))
-        pass
+        assert(self.__hash__keys() == other_memdump.__hash__keys())
+        return MemoryDump({k:self[k] for k in self if self[k] >= other_memdump[k]})
 
     def __str__(self):
-        return self.dump_data
+        #return os.linesep.join(["%016x : %016x %16s" % (k, self[k], "".join([ch for ch in self[k] if ord(ch) in range(0x20,0x7E)])) for k in self])
+        return repr(self)
 
     def __repr__(self):
-        return ""
+        return os.linesep.join(["%016x : %016x" % (k, self[k]) for k in self])
 
     def bitmap(self):
         #BZdump
