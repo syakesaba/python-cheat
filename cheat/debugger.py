@@ -149,7 +149,7 @@ class Debugger(ptrace.debugger.PtraceDebugger):
         pass
 
 # Pointer Searching
-    def serachPointer(self):
+    def searchPointer(self):
         pass
 
 # ============ Reading Memory
